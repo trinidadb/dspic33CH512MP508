@@ -1,0 +1,112 @@
+<html>
+<head></head>
+
+
+<body>
+<h3>Problem with Demo</h3>
+<pre style="word-wrap: break-word; white-space: pre-line; margin-left:4.35%; margin-right:4.35%;">
+	In Master "Project --> Source files --> MCC Generated Files --> system.c (line 228)" do the following change ->Updated the code to use "MTSIRQ" instead of "MSTIRQ"
+</pre>
+
+<h3>PO</h3>
+<pre style="word-wrap: break-word; white-space: pre-line; margin-left:4.35%; margin-right:4.35%;">
+	PO = Program once bit
+	It shouldn't be addressed on "main.c", just set it on config.h (example: when you select "Set Configuration Bits").	It happened to me that when I tried to address "FCFGPRE0" the register name wasn't detected in the "main.c"
+	Also: Programmable != Writable
+</pre>
+
+<h3>Fuse bits</h3>
+<pre style="word-wrap: break-word; white-space: pre-line; margin-left:4.35%; margin-right:4.35%;">
+	Fuse bits, also known as fuses or configuration bits, are settings made in microcontrollers to control certain operations that are not normally changed during the execution of the program code
+</pre>
+
+<h3>Debug</h3>
+<pre style="word-wrap: break-word; white-space: pre-line; margin-left:4.35%; margin-right:4.35%;">
+	To debbug a master porject just change PGD1 to PGD2 in the config everytime it appears
+</pre>
+
+<h3>UART</h3>
+<pre style="word-wrap: break-word; white-space: pre-line; margin-left:4.35%; margin-right:4.35%;">
+	The calculation present in project "1_UART" is correct. However everytime you use the UART manually calculate the error between the ideal baud rate and the baud rate you really get. If the error is to big, the UART WON'T work.
+	Bigger the baud rate bigger the error.
+	Always try rounding up or down the error to check which gives the lower error
+	General example:
+
+		Desired baud rate = 9600   .... Find BRGx
+		BRGx = (FCY/(4*Baud Rate)) – 1   
+		BRGx = [(5000000/4*9600)]-1 = 129.21   = 129 Rounded
+		 
+		 
+		Computed Baud Rate = FCY/(4 • (BRGx + 1))
+		                             = 5000000/4*(130)
+		                             = 9615.38
+		 
+		Error = (computed baud-desired baud)/desired baud
+		       = 15.38/9600
+		       = .16%
+</pre>
+
+<h3>PLL freq</h3>
+
+	<h6>WHAT WE EXPECT (BUT's WRONG)</h6>
+	<pre style="word-wrap: break-word; white-space: pre-line; margin-left:4.35%; margin-right:4.35%;">
+	Fin is your xtal freq, ext osc, or internal osc:
+
+	Fosc=(Fin*M)/(N1*N2*N3)
+
+	But Fcy=Fosc/2, so Fcy=(Fin*M)/(2*N1*N2*N3).  In fact the Fosc and its relationship to Fcy is irrelevant to most any use. So forget the first eq, use this.  Who cares if there's 2 or 4 osc clocks to a cycle? Instruction, PWM, ADC all use the cycle clock.
+	</pre>
+
+	<h6>HOW IT REALLY IS</h6>
+	<pre style="word-wrap: break-word; white-space: pre-line; margin-left:4.35%; margin-right:4.35%;">
+	Fin is your xtal freq, ext osc, or internal osc:
+
+	WITH PLL OFF --> Fcy=Fosc/2  or  Fcy=Fin/2
+
+	WITH PLL ON  --> Fcy=(Fin*M)/(4*N1*N2*N3)
+
+	<pre style="word-wrap: break-word; white-space: pre-line;"><a href="https://www.microchip.com/forums/m259691.aspx" target="_blank">Link1</a></pre>
+	<pre style="word-wrap: break-word; white-space: pre-line;"><a href="https://microchipdeveloper.com/16bit:osc-pll-140mhzpll" target="_blank">Link2</a></pre>
+
+	<h5><u>Code found in the slave configuration demo:</u></h5>
+	//Clock switch to 200MHz CPU freq (100MIPs) from FRC+PLL (ex: ((8MHz * 200) / 4) / 2 = 200MHz)
+    // Configure PLL prescaler, both PLL postscalers, and PLL feedback divider
+    CLKDIVbits.PLLPRE = 1;      // N1=1
+    PLLFBDbits.PLLFBDIV = 200;  // M = 200 (ex: FVCO = 1600MHz = 8MHz * 200)
+    PLLDIVbits.POST1DIV = 4;    // N2=4 (1600MHz / 4, <mark>followed by fixed / 2</mark>= 200MHz)
+    PLLDIVbits.POST2DIV = 1;    // N3=1
+	</pre>
+
+
+<h3>MSI</h3>
+
+	<h6>Mailbox - Interruptions VS Software Polling</h6>
+
+	<pre style="word-wrap: break-word; white-space: pre-line; margin-left:4.35%; margin-right:4.35%;">
+	Although using interrupts is intended to be the primary method of managing the mailbox data flow control protocol, it is possible to also poll the status bits with software. In applications where the	data sent through a mailbox is to be used within a periodic control process, software polling of the mailbox data flow control status flag could be the preferred approach.
+	</pre>
+
+	<h6>Mailbox (and FIFO) - DMA - Comment</h6>
+
+	<pre style="word-wrap: break-word; white-space: pre-line; margin-left:4.35%; margin-right:4.35%;"><a href="https://www.microchip.com/forums/m1068199.aspx" target="_blank">Link</a></pre>
+
+	<h6>Mailbox VS FIFO</h6>
+
+	<pre style="word-wrap: break-word; white-space: pre-line; margin-left:4.35%; margin-right:4.35%;">
+	The MSI contains a 2-channel FIFO; the FIFOs are used to coordinate data queues between the	Master and Slave processors. Provided the FIFO does not become empty (or encounters an error condition), the Master and Slave may access it concurrently. A FIFO may therefore, offer a	better throughput than a mailbox-based data pipe, which must be loaded by one processor	before being read by the other.
+	</pre>
+
+<h3>Starting Slave</h3>
+
+	<pre style="word-wrap: break-word; white-space: pre-line; margin-left:4.35%; margin-right:4.35%;">
+	_program_secondary(...); //_program_slave(...);
+	_start_secondary(); //_start_slave();
+	</pre>
+
+	<pre style="word-wrap: break-word; white-space: pre-line; margin-left:4.35%; margin-right:4.35%;"><a href="https://onlinedocs.microchip.com/pr/GUID-70ACD6B0-A33F-4653-B192-8465EAD1FD98-en-US-5/index.html?GUID-CBD4325F-4C8A-4A74-A208-6002E3F5F11C" target="_blank">Link</a></pre>
+
+
+
+</body>
+
+</html>

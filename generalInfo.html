@@ -1,0 +1,41 @@
+<html>
+<head></head>
+
+
+<body>
+<h3>SLAVE VS MASTER</h3>
+<pre style="word-wrap: break-word; white-space: pre-wrap;">
+The dsPIC33CH Master and Slave Cores are designed so that the Slave Core can execute dedicated, time-critical control code while the Master Core is running the user interface and other applications such as system monitoring and communication functions.
+
+The Slave Core’s code will reside in the flash memory of the Master Core. After a designated time lapse following the system start-up, the Master Core under user control transfers the Slave’s programming image from the flash memory to the Slave’s PRAM. Once the initialization of the Slave is completed, the Master empowers the Slave. The Slave code is executed by the Slave Core and its first task is to initialize its peripherals. Once the Master and Slave Cores are operating, they can exchange information, commands, and status through the Master/Slave Interface (MSI) module.
+</pre>
+
+<h4><a href="https://microchipdeveloper.com/mcc:mplab-code-configurator-support-for-dual-core-devices#toc19" target="_blank">Link for Demo</a></h4>
+
+<h3>BE AWARE</h3>
+<h5>Code and Settings...</h5>
+<pre style="word-wrap: break-word; white-space: pre-wrap;">
+The sharing of information from Master Project to Slave Project facilitates MCC to display the settings in the Slave Project, which you configure in the Master Project. If this information is not shared, MCC will display the default setting values in the Slave Project. These settings are not editable in the Slave Project and are only shown to help you in independent code development. Any change required in these settings can only be done in the Master Project.
+
+Setting up the Master Core involves selecting the Slave Core and configuring it.
+
+The Master Core is programmed with both Master Code and Slave Code. It is required to include the Slave project image header as a part of the Master Code. During execution, the Master Core is initialized first, and the Master Core transfers the Slave Code onto the Slave PRAM.
+
+In a Master Project, the configuration fuses related to Slave Core are configured. This setting information needs to be communicated to the Slave Project and is facilitated by exporting and importing the settings.
+</pre>
+
+<h5>Slave Project...</h5>
+<pre style="word-wrap: break-word; white-space: pre-wrap;">
+Setting up the Slave Core in a Slave Project involves importing the settings for the Slave Core, which are configured in the Master Project.
+</pre>
+
+<h5>MSI...</h5>
+<pre style="word-wrap: break-word; white-space: pre-wrap;">
+The MSI is the data gateway between the Master Core and the Slave Core, each of which operates within independent clock domains.
+
+The MSI controls are non-editable in the Slave Project. All the settings related to MSI have to be done in the Master Project and must be imported from the Master Project. Interrupts for the protocols can be configured only after importing the settings.
+</pre>
+
+</body>
+
+</html>
