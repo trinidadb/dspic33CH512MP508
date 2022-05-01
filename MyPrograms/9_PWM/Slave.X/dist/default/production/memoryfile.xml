@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project>
+  <executable name="dist/default/production/Slave.X.production.elf">
+    <memory name="data">
+      <units>bytes</units>
+      <length>16384</length>
+      <used>14</used>
+      <free>16370</free>
+    </memory>
+    <memory name="program">
+      <units>bytes</units>
+      <length>72960</length>
+      <used>4383</used>
+      <free>68577</free>
+    </memory>
+  </executable>
+</project>
